@@ -2,8 +2,10 @@
 Messages concerning recipe files (`meta.yaml`, `recipe.yaml`).
 """
 
+import re
 from dataclasses import asdict, dataclass
 from typing import ClassVar, Literal, Self, TypeAlias
+from pathlib import Path
 
 from conda.deprecations import deprecated
 
@@ -415,10 +417,27 @@ class RequirementSeparateNameVersion(LinterMessage, _AnyRecipeMessage):
         "contain a space between the name and the pin, i.e. "
         "``${name} ${pin}``"
     )
+    fixable = True
     section: str
     requirement: str
     name: str
     pin: str
+
+    def fix(self, recipe_path: str | Path):
+        recipe_path = Path(recipe_path)
+        text = recipe_path.read_text(encoding="utf-8")
+
+        match = re.match(rf"({re.escape(self.name)}\S*)", self.requirement)
+        if match is None or self.requirement not in text:
+            return
+
+        bad_token = match.group(1)
+        good_token = f"{self.name} {bad_token[len(self.name):]}"
+        fixed_requirement = self.requirement.replace(bad_token, good_token, 1)
+
+        recipe_path.write_text(
+            text.replace(self.requirement, fixed_requirement, 1), encoding="utf-8"
+        )
 
 
 @dataclass(kw_only=True)

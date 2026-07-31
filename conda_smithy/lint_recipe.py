@@ -982,13 +982,18 @@ def find_recipe_directory(
     return (recipe_dir, build_tool)
 
 
-def main(recipe_dir, conda_forge=False, return_hints=False, feedstock_dir=None):
+def get_recipe_file(recipe_dir, feedstock_dir=None) -> tuple[str, str]:
     recipe_dir, build_tool = find_recipe_directory(recipe_dir, feedstock_dir)
-
     if build_tool == RATTLER_BUILD_TOOL:
         recipe_file = os.path.join(recipe_dir, "recipe.yaml")
     else:
         recipe_file = os.path.join(recipe_dir, "meta.yaml")
+
+    return recipe_file, build_tool
+
+
+def main(recipe_dir, conda_forge=False, return_hints=False, feedstock_dir=None):
+    recipe_file, build_tool = get_recipe_file(recipe_dir, feedstock_dir)
 
     if not os.path.exists(recipe_file):
         raise OSError(f"No recipe file found in {recipe_dir}")

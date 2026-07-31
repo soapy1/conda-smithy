@@ -665,16 +665,19 @@ class RecipeLint(Subcommand):
         )
         scp.add_argument("recipe_directory", default=[os.getcwd()], nargs="*")
         scp.add_argument("--detailed", action="store_true")
+        scp.add_argument("--fix", action="store_true")
 
     def __call__(self, args):
         all_good = True
         for recipe in args.recipe_directory:
+            recipe_path =  os.path.join(recipe)
             lints, hints = linter.main(
-                os.path.join(recipe),
+                recipe_path,
                 conda_forge=args.conda_forge,
                 return_hints=True,
                 feedstock_dir=args.feedstock_dir,
             )
+            fixable_lints_and_hints = [issue for issue in lints + hints if issue.fixable]
             if lints:
                 all_good = False
                 if args.detailed:
@@ -698,6 +701,9 @@ class RecipeLint(Subcommand):
                             "\n  ".join(hints_list),
                         )
                     )
+
+                if args.detailed:
+                    print(f"\n{len(fixable_lints_and_hints)} lints were found to be fixable.")
             elif hints:
                 if args.detailed:
                     hints_list = [hint.detailed_message().replace("\n", "\n    ") for hint in hints]
@@ -709,8 +715,23 @@ class RecipeLint(Subcommand):
                         "\n  ".join(hints_list),
                     )
                 )
+
+                if args.detailed:
+                    print(f"\n{len(fixable_lints_and_hints)} lints were found to be fixable.")
             else:
                 print(f"{recipe} is in fine form")
+
+            if args.fix:
+                fixed_counter = 0
+                recipe_file, _ = linter.get_recipe_file(recipe_path)
+                for fixable in fixable_lints_and_hints:
+                    try:
+                        fixable.fix(recipe_file)
+                        fixed_counter += 1
+                    except Exception:
+                        print(f"Unable to fix {fixable.identifier}: {fixable.as_string()}")
+                print(f"Fixed {fixed_counter} issues!")
+
         # Exit code 1 for some lint, 0 for no lint.
         sys.exit(int(not all_good))
 

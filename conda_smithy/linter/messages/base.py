@@ -8,7 +8,8 @@ text, its identifier and the necessary variables.
 from dataclasses import MISSING, asdict, fields
 from inspect import cleandoc
 from string import Template
-from typing import ClassVar, Literal, Self
+from typing import ClassVar, Literal, Self, Callable
+from pathlib import Path
 
 
 class LinterMessage:
@@ -48,6 +49,11 @@ class LinterMessage:
     added_in: ClassVar[str] = "<3.56"
     #: conda-smithy version where the message was deprecated
     deprecated_in: ClassVar[str] = ""
+    #: Function that can fix the linting issue. This function may take arguments ``self`` and the
+    #  path to the recipe. By default this should be a no-op
+    fix: Callable[[Self, str | Path], None] = lambda self, recipe_path: None
+    #: Denotes if a lint has an implemented fix function
+    fixable: bool = False
 
     @classmethod
     def examples(cls) -> list[Self]:
