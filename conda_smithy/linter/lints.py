@@ -57,7 +57,7 @@ def lint_section_order(
     section_order_sorted = sorted(major_sections, key=order.index)
 
     if major_sections != section_order_sorted:
-        lints.append(msg.r.SectionOrder(order=section_order_sorted).as_string())
+        lints.append(msg.r.SectionOrder(order=section_order_sorted))
 
 
 def lint_about_contents(about_section, lints, recipe_version: int = 0):
@@ -69,23 +69,23 @@ def lint_about_contents(about_section, lints, recipe_version: int = 0):
     for about_item in expected_section:
         # if the section doesn't exist, or is just empty, lint it.
         if not about_section.get(about_item, ""):
-            lints.append(msg.r.MissingAboutItem(item=about_item).as_string())
+            lints.append(msg.r.MissingAboutItem(item=about_item))
 
 
 def lint_feedstock_name_not_end_with_feedstock(extra_section, lints):
     feedstock_name = extra_section.get("feedstock-name", "")
     if feedstock_name and feedstock_name.endswith("-feedstock"):
-        lints.append(msg.r.ExtraFeedstockNameSuffix().as_string())
+        lints.append(msg.r.ExtraFeedstockNameSuffix())
 
 
 def lint_recipe_maintainers(extra_section, lints):
     if not extra_section.get("recipe-maintainers", []):
-        lints.append(msg.r.NoMaintainers().as_string())
+        lints.append(msg.r.NoMaintainers())
     if not (
         isinstance(extra_section.get("recipe-maintainers", []), Sequence)
         and not isinstance(extra_section.get("recipe-maintainers", []), str)
     ):
-        lints.append(msg.r.MaintainersMustBeList().as_string())
+        lints.append(msg.r.MaintainersMustBeList())
 
 
 def lint_recipe_have_tests(
@@ -121,19 +121,19 @@ def lint_recipe_have_tests(
                         no_test_hints.append(
                             msg.r.RecommendedTests(
                                 output=out.get("name", "???")
-                            ).as_string()
+                            )
                         )
 
             if has_outputs_test:
                 hints.extend(no_test_hints)
             else:
-                lints.append(msg.r.RequiredTests().as_string())
+                lints.append(msg.r.RequiredTests())
 
 
 def lint_license_cannot_be_unknown(about_section, lints):
     license = about_section.get("license", "").lower()
     if "unknown" == license.strip():
-        lints.append(msg.r.UnknownLicense().as_string())
+        lints.append(msg.r.UnknownLicense())
 
 
 def lint_selectors_should_be_in_tidy_form(recipe_fname, lints, hints):
@@ -161,14 +161,14 @@ def lint_selectors_should_be_in_tidy_form(recipe_fname, lints, hints):
                             python_selectors_lint.append(selector_line)
                             py_selector_lines_lint.append(line_number)
     if bad_selectors:
-        lints.append(msg.r.FormattedSelectors(lines=bad_lines).as_string())
+        lints.append(msg.r.FormattedSelectors(lines=bad_lines))
     if python_selectors_hint:
         hints.append(
-            msg.r.OldPythonSelectorsHint(lines=py_selector_lines_hint).as_string()
+            msg.r.OldPythonSelectorsHint(lines=py_selector_lines_hint)
         )
     if python_selectors_lint:
         lints.append(
-            msg.r.OldPythonSelectorsLint(lines=py_selector_lines_lint).as_string()
+            msg.r.OldPythonSelectorsLint(lines=py_selector_lines_lint)
         )
 
 
@@ -179,12 +179,12 @@ def lint_no_comment_selectors(recipe_fname, lints, hints):
             for selector_line, line_number in selector_lines(fh, only_in_comment=True):
                 bad_lines.append(line_number)
     if bad_lines:
-        lints.append(msg.r.NoCommentSelectors(lines=bad_lines).as_string())
+        lints.append(msg.r.NoCommentSelectors(lines=bad_lines))
 
 
 def lint_build_section_should_have_a_number(build_section, lints):
     if build_section.get("number", None) is None:
-        lints.append(msg.r.BuildNumberMissing().as_string())
+        lints.append(msg.r.BuildNumberMissing())
 
 
 def lint_build_section_should_be_before_run(requirements_section, lints):
@@ -194,7 +194,7 @@ def lint_build_section_should_be_before_run(requirements_section, lints):
         lints.append(
             msg.r.RequirementsOrder(
                 expected=REQUIREMENTS_ORDER, seen=seen_requirements
-            ).as_string()
+            )
         )
 
 
@@ -205,7 +205,7 @@ def lint_sources_should_have_hash(
         if "url" in source_section and not (
             {"sha1", "sha256", "md5"} & set(source_section.keys())
         ):
-            lints.append(msg.r.SourceHash().as_string())
+            lints.append(msg.r.SourceHash())
 
 
 def lint_license_should_not_have_license(about_section, lints):
@@ -216,7 +216,7 @@ def lint_license_should_not_have_license(about_section, lints):
         and "licenseref" not in license.lower()
         and "-license" not in license.lower()
     ):
-        lints.append(msg.r.LicenseFieldMentionsLicense().as_string())
+        lints.append(msg.r.LicenseFieldMentionsLicense())
 
 
 def lint_should_be_empty_line(meta_fname, lints):
@@ -228,10 +228,10 @@ def lint_should_be_empty_line(meta_fname, lints):
         end_empty_lines_count = len(list(empty_lines))
         if end_empty_lines_count > 1:
             lints.append(
-                msg.r.TooManyEmptyLines(n_lines=end_empty_lines_count - 1).as_string()
+                msg.r.TooManyEmptyLines(n_lines=end_empty_lines_count - 1)
             )
         elif end_empty_lines_count < 1:
-            lints.append(msg.r.TooFewEmptyLines().as_string())
+            lints.append(msg.r.TooFewEmptyLines())
 
 
 def lint_license_family_should_be_valid(
@@ -244,11 +244,11 @@ def lint_license_family_should_be_valid(
     license_file = about_section.get("license_file", None)
     if not license_file:
         if recipe_version == 1:
-            lints.append(msg.r.LicenseFamily().as_string())
+            lints.append(msg.r.LicenseFamily())
         else:
             license_family = about_section.get("license_family", license).lower()
             if any(f for f in needed_families if f in license_family):
-                lints.append(msg.r.LicenseFamily().as_string())
+                lints.append(msg.r.LicenseFamily())
 
 
 def lint_recipe_name(
@@ -265,7 +265,7 @@ def lint_recipe_name(
 def lint_usage_of_legacy_patterns(requirements_section, lints):
     build_reqs = requirements_section.get("build", None)
     if build_reqs and ("numpy x.x" in build_reqs):
-        lints.append(msg.r.PinnedNumpy().as_string())
+        lints.append(msg.r.PinnedNumpy())
 
 
 def lint_subheaders(major_sections, meta, lints):
@@ -282,7 +282,7 @@ def lint_subheaders(major_sections, meta, lints):
                 lints.append(
                     msg.r.UnexpectedSubsection(
                         section=section, subsection=subsection
-                    ).as_string()
+                    )
                 )
             elif section == "source" or section == "outputs":
                 for source_subsection in subsection:
@@ -290,14 +290,14 @@ def lint_subheaders(major_sections, meta, lints):
                         lints.append(
                             msg.r.UnexpectedSubsection(
                                 section=section, subsection=source_subsection
-                            ).as_string()
+                            )
                         )
 
 
 def lint_noarch(noarch_value: Optional[str], lints):
     if noarch_value is not None:
         if noarch_value not in msg.r.NoarchValue.valid:
-            lints.append(msg.r.NoarchValue(given=noarch_value).as_string())
+            lints.append(msg.r.NoarchValue(given=noarch_value))
 
 
 def lint_recipe_v1_noarch_and_runtime_dependencies(
@@ -342,7 +342,7 @@ def lint_noarch_and_runtime_dependencies(
                         line_number=line_number,
                         line=line,
                         skips=True,
-                    ).as_string()
+                    )
                 )
                 break
             if runreqs_spacing is not None:
@@ -359,7 +359,7 @@ def lint_noarch_and_runtime_dependencies(
                             noarch=noarch_value,
                             line_number=line_number,
                             line=line,
-                        ).as_string()
+                        )
                     )
                     break
 
@@ -383,12 +383,12 @@ def lint_jinja_variables_definitions(meta_fname, lints):
                     bad_jinja.append(jinja_line)
                     bad_lines.append(line_number)
         if bad_jinja:
-            lints.append(msg.r.JinjaDefinitions(lines=bad_lines).as_string())
+            lints.append(msg.r.JinjaDefinitions(lines=bad_lines))
 
 
 def lint_legacy_usage_of_compilers(build_reqs, lints):
     if build_reqs and ("toolchain" in build_reqs):
-        lints.append(msg.r.LegacyToolchain().as_string())
+        lints.append(msg.r.LegacyToolchain())
 
 
 def lint_single_space_in_pinned_requirements(
@@ -457,7 +457,7 @@ def lint_single_space_in_pinned_requirements(
                         requirement=requirement,
                         name=parts[0],
                         pin="".join(parts[1:]),
-                    ).as_string()
+                    )
                 )
                 continue
             # check that there is a space if there is a pin
@@ -472,7 +472,7 @@ def lint_single_space_in_pinned_requirements(
                         requirement=requirement,
                         name=parts[0][:i],
                         pin=parts[0][i:] + "".join(parts[1:]),
-                    ).as_string()
+                    )
                 )
                 continue
 
@@ -500,7 +500,7 @@ def lint_non_noarch_builds(
                 req for req in run_reqs if req.partition(" ")[0] == str(language)
             ]
             if filtered_host_reqs and not filtered_run_reqs:
-                lints.append(msg.r.LanguageHostRun(language=language).as_string())
+                lints.append(msg.r.LanguageHostRun(language=language))
             if get_version_independent(build_section, language, recipe_version):
                 continue
             for reqs in [filtered_host_reqs, filtered_run_reqs]:
@@ -510,7 +510,7 @@ def lint_non_noarch_builds(
                     constraint = req.split(" ", 1)[1]
                     if constraint.startswith((">", "<")):
                         lints.append(
-                            msg.r.LanguageHostRunUnpinned(language=language).as_string()
+                            msg.r.LanguageHostRunUnpinned(language=language)
                         )
 
 
@@ -533,7 +533,7 @@ def lint_jinja_var_references(meta_fname, hints, recipe_version: int = 0):
             hints.append(
                 msg.r.JinjaExpression(
                     recipe_version=recipe_version, lines=bad_lines
-                ).as_string()
+                )
             )
 
 
@@ -545,7 +545,7 @@ def lint_require_lower_bound_on_python_version(
             if (req.strip().split()[0] == "python") and (req != "python"):
                 break
         else:
-            lints.append(msg.r.PythonLowerBound().as_string())
+            lints.append(msg.r.PythonLowerBound())
 
 
 def lint_pin_subpackages(
@@ -586,7 +586,7 @@ def lint_pin_subpackages(
                         pin=pin.split()[1],
                         subpackages=subpackage_names,
                         is_output=True,
-                    ).as_string()
+                    )
                 )
 
         filter_pin = "subpackage_pin "
@@ -599,7 +599,7 @@ def lint_pin_subpackages(
                         pin=pin.split()[1],
                         subpackages=subpackage_names,
                         is_output=False,
-                    ).as_string()
+                    )
                 )
 
     def check_pins_build_and_requirements(top_level):
@@ -645,18 +645,18 @@ def lint_check_usage_of_whls(meta_fname, noarch_value, lints, hints):
                     compiled_wheel_urls.append(match.group(1))
         if compiled_wheel_urls:
             lints.append(
-                msg.r.CompiledWheelsNotAllowed(urls=compiled_wheel_urls).as_string()
+                msg.r.CompiledWheelsNotAllowed(urls=compiled_wheel_urls)
             )
         if pure_python_wheel_urls:
             if noarch_value == "python":  # this is ok, just hint
                 hints.append(
                     msg.r.PureWheelsNotAllowedNoarch(
                         urls=pure_python_wheel_urls
-                    ).as_string()
+                    )
                 )
             else:
                 lints.append(
-                    msg.r.PureWheelsNotAllowed(urls=pure_python_wheel_urls).as_string()
+                    msg.r.PureWheelsNotAllowed(urls=pure_python_wheel_urls)
                 )
 
 
@@ -679,7 +679,7 @@ def lint_rust_licenses_are_bundled(
         has_rust = "{{ compiler('rust') }}" in build_reqs
 
     if has_rust and "cargo-bundle-licenses" not in build_reqs:
-        lints.append(msg.r.RustLicenses().as_string())
+        lints.append(msg.r.RustLicenses())
 
 
 def lint_go_licenses_are_bundled(
@@ -698,7 +698,7 @@ def lint_go_licenses_are_bundled(
 
     if has_go:
         if "go-licenses" not in [*build_reqs, recipe_name]:
-            lints.append(msg.r.GoLicenses().as_string())
+            lints.append(msg.r.GoLicenses())
 
 
 def lint_osx_pins(recipe_dir, recipe_config_filename, lints, recipe_version):
@@ -761,7 +761,7 @@ def lint_osx_pins(recipe_dir, recipe_config_filename, lints, recipe_version):
         lints.append(
             msg.rv.MacOSDeploymentTargetRename(
                 recipe_config_file=recipe_config_file
-            ).as_string()
+            )
         )
 
     def sort_osx(versions):
@@ -781,7 +781,7 @@ def lint_osx_pins(recipe_dir, recipe_config_filename, lints, recipe_version):
         # only warn if version is below baseline
         outdated_lint = msg.rv.MacOSDeploymentTargetBelow(
             baseline_version=baseline_version[0]
-        ).as_string()
+        )
         if len(v_stdlib) == len(baseline_version):
             # if length matches, compare individually
             for v_std, v_base in zip(v_stdlib, baseline_version):
@@ -797,7 +797,7 @@ def lint_osx_pins(recipe_dir, recipe_config_filename, lints, recipe_version):
     # warn if SDK is lower than v_stdlib
     sdk_lint = msg.rv.MacOSDeploymentTargetBelowStdlib(
         baseline=baseline_version[0]
-    ).as_string()
+    )
     if len(sdk) == len(v_stdlib):
         # if length matches, compare individually
         for v_sdk, v_std in zip(sdk, v_stdlib):
@@ -984,11 +984,11 @@ def lint_recipe_is_parsable(
         if any(pv is not None for pv in parse_results.values()):
             if not any(parse_results.values()):
                 lints.append(
-                    msg.r.NotParsableLint(parsers=list(parse_results)).as_string()
+                    msg.r.NotParsableLint(parsers=list(parse_results))
                 )
             for parser_name, pv in parse_results.items():
                 if pv is False:
-                    hints.append(msg.r.NotParsableHint(parser=parser_name).as_string())
+                    hints.append(msg.r.NotParsableHint(parser=parser_name))
 
 
 IS_AB3_BOOL_RE = re.compile(r"is_abi3\s*(==|!=)\s*('|\")(true|false)('|\")")
@@ -999,7 +999,7 @@ def lint_recipe_is_abi3_bool(
     lints: list[str],
 ) -> None:
     if IS_AB3_BOOL_RE.search(recipe_text):
-        lints.append(msg.r.PythonIsAbi3Bool().as_string())
+        lints.append(msg.r.PythonIsAbi3Bool())
 
 
 def lint_floats_quoted(
@@ -1018,7 +1018,7 @@ def lint_floats_quoted(
             lints.append(
                 msg.r.VersionParsedAsFloat(
                     key=key, value=value, recipe_version=recipe_version
-                ).as_string()
+                )
             )
 
     for key, value in meta.items():
@@ -1067,7 +1067,7 @@ def lint_invalid_workflow_settings(
                             index=index,
                             os=oses,
                             platform=platforms,
-                        ).as_string()
+                        )
                     )
 
         # determine if any of the conditions actually overlap with any other
@@ -1096,7 +1096,7 @@ def lint_invalid_workflow_settings(
                 msg.cf.WorkflowSettingsOverlappingEntries(
                     setting=key,
                     entries=entries,
-                ).as_string()
+                )
             )
 
     # check for path variables without platform differentiation
@@ -1114,7 +1114,7 @@ def lint_invalid_workflow_settings(
                         index=index,
                         value=wf_setting.value,
                         os=sorted(os),
-                    ).as_string()
+                    )
                 )
 
     # check for variables that are applicable only to a subset of workflows
@@ -1138,7 +1138,7 @@ def lint_invalid_workflow_settings(
                         index=index,
                         mismatched=mismatched,
                         restrictions=restrictions,
-                    ).as_string()
+                    )
                 )
 
 
@@ -1198,5 +1198,5 @@ def lint_feedstock_name(
         lints.append(
             msg.cf.MismatchedFeedstockName(
                 current=feedstock_name, expected=expected_name
-            ).as_string()
+            )
         )

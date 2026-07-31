@@ -664,6 +664,7 @@ class RecipeLint(Subcommand):
             help="feedstock directory",
         )
         scp.add_argument("recipe_directory", default=[os.getcwd()], nargs="*")
+        scp.add_argument("--detailed", action="store_true")
 
     def __call__(self, args):
         all_good = True
@@ -676,24 +677,37 @@ class RecipeLint(Subcommand):
             )
             if lints:
                 all_good = False
+                if args.detailed:
+                    lints_list = [lint.detailed_message().replace("\n", "\n    ") for lint in lints]
+                else:
+                    lints_list = [lint.as_string().replace("\n", "\n    ") for lint in lints]
                 print(
                     "{} has some lint:\n  {}".format(
                         recipe,
-                        "\n  ".join([lint.replace("\n", "\n    ") for lint in lints]),
+                        "\n  ".join(lints_list),
                     )
                 )
                 if hints:
+                    if args.detailed:
+                        hints_list = [hint.detailed_message().replace("\n", "\n    ") for hint in hints]
+                    else:
+                        hints_list = [hint.as_string().replace("\n", "\n    ") for hint in hints]
                     print(
                         "{} also has some suggestions:\n  {}".format(
                             recipe,
-                            "\n  ".join(
-                                [hint.replace("\n", "\n    ") for hint in hints]
-                            ),
+                            "\n  ".join(hints_list),
                         )
                     )
             elif hints:
+                if args.detailed:
+                    hints_list = [hint.detailed_message().replace("\n", "\n    ") for hint in hints]
+                else:
+                    hints_list = [hint.as_string().replace("\n", "\n    ") for hint in hints]
                 print(
-                    "{} has some suggestions:\n  {}".format(recipe, "\n  ".join(hints))
+                    "{} has some suggestions:\n  {}".format(
+                        recipe,
+                        "\n  ".join(hints_list),
+                    )
                 )
             else:
                 print(f"{recipe} is in fine form")

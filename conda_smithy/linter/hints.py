@@ -33,7 +33,7 @@ def hint_pip_usage(build_section, hints):
             scripts = [scripts]
         for script in scripts:
             if "python setup.py install" in script:
-                hints.append(msg.r.UsePip().as_string())
+                hints.append(msg.r.UsePip())
 
 
 def hint_legacy_pypi_url(sources_section: list[dict[str, Any]], hints: list[str]):
@@ -47,7 +47,7 @@ def hint_legacy_pypi_url(sources_section: list[dict[str, Any]], hints: list[str]
         source = source_section.get("url", "") or ""
         sources = [source] if isinstance(source, str) else source
         if any(s.startswith("https://pypi.io/") for s in sources):
-            hints.append(msg.r.LegacyPyPIURL().as_string())
+            hints.append(msg.r.LegacyPyPIURL())
 
 
 @deprecated("2026.7", "2026.10", addendum="Use hint_legacy_pypi_url() instead")
@@ -98,7 +98,7 @@ def hint_suggest_noarch(
                             no_arch_possible = False
                             break
                 if no_arch_possible:
-                    hints.append(msg.r.SuggestNoarch().as_string())
+                    hints.append(msg.r.SuggestNoarch())
 
 
 def hint_shellcheck_usage(recipe_dir, hints, feedstock_config=None):
@@ -150,11 +150,11 @@ def hint_shellcheck_usage(recipe_dir, hints, feedstock_config=None):
                     msg.r.ScriptShellcheckReport(
                         command=cmd,
                         output_lines=findings,
-                    ).as_string()
+                    )
                 )
             elif p.returncode != 0:
                 # Something went wrong.
-                hints.append(msg.r.ScriptShellcheckFailure().as_string())
+                hints.append(msg.r.ScriptShellcheckFailure())
 
 
 def hint_check_spdx(about_section, hints):
@@ -196,9 +196,9 @@ def hint_check_spdx(about_section, hints):
         expected_exceptions = f.readlines()
         expected_exceptions = {li.strip() for li in expected_exceptions}
     if set(filtered_licenses) - expected_licenses:
-        hints.append(msg.r.LicenseSPDX().as_string())
+        hints.append(msg.r.LicenseSPDX())
     if set(parsed_exceptions) - expected_exceptions:
-        hints.append(msg.r.InvalidLicenseException().as_string())
+        hints.append(msg.r.InvalidLicenseException())
 
 
 def hint_pip_no_build_backend(host_or_build_section, package_name, hints):
@@ -232,7 +232,7 @@ def hint_pip_no_build_backend(host_or_build_section, package_name, hints):
 
         if not found_backend:
             hints.append(
-                msg.r.PythonBuildBackendHost(package_name=package_name).as_string()
+                msg.r.PythonBuildBackendHost(package_name=package_name)
             )
 
 
@@ -367,7 +367,7 @@ def hint_noarch_python_use_python_min(
         )
 
     if recommendations:
-        hints.append(msg.r.PythonMinPin(recommendations=recommendations).as_string())
+        hints.append(msg.r.PythonMinPin(recommendations=recommendations))
 
 
 def hint_redundant_python_min(meta, recipe_text, recipe_version, hints):
@@ -388,7 +388,7 @@ def hint_redundant_python_min(meta, recipe_text, recipe_version, hints):
     if global_python_min is not None and VersionOrder(str(declared)) <= VersionOrder(
         global_python_min
     ):
-        hints.append(msg.r.RedundantPythonMin(value=str(declared)).as_string())
+        hints.append(msg.r.RedundantPythonMin(value=str(declared)))
 
 
 def _python_tests_cover_latest(tests_section, run_reqs):
@@ -448,7 +448,7 @@ def hint_noarch_python_test_latest(
 
     for tests, run, noarch in scopes:
         if noarch == "python" and not _python_tests_cover_latest(tests, run):
-            hints.append(msg.r.NoarchPythonTestLatest().as_string())
+            hints.append(msg.r.NoarchPythonTestLatest())
             return
 
 
@@ -486,7 +486,7 @@ def hint_python_version_independent_test_latest(
         if get_version_independent(
             build or {}, "python", recipe_version
         ) and not _python_tests_cover_latest(tests, run):
-            hints.append(msg.r.PythonVersionIndependentTestLatest().as_string())
+            hints.append(msg.r.PythonVersionIndependentTestLatest())
             return
 
 
@@ -533,7 +533,7 @@ def hint_abi3_cross_python_run_exports(
             continue
         from_package = flatten_v1_if_else(ignore_run_exports.get("from_package") or [])
         if any(CROSS_PYTHON_RE.match(str(entry).strip()) for entry in from_package):
-            hints.append(msg.r.Abi3CrossPythonRunExports().as_string())
+            hints.append(msg.r.Abi3CrossPythonRunExports())
             return
 
 
@@ -572,7 +572,7 @@ def hint_space_separated_specs(
 
     for output, requirements in report.items():
         hints.append(
-            msg.r.SpaceSeparatedSpecs(output=output, bad_specs=requirements).as_string()
+            msg.r.SpaceSeparatedSpecs(output=output, bad_specs=requirements)
         )
 
 
@@ -627,7 +627,7 @@ def hint_os_version(
         hints.append(
             msg.fc.OSVersionLower(
                 platforms=matches, default=default_os_version
-            ).as_string()
+            )
         )
 
 
@@ -651,7 +651,7 @@ def hint_rattler_build_bld_bat(
     # Check if bld.bat exists in the recipe directory
     bld_bat_path = os.path.join(recipe_dir, "bld.bat")
     if os.path.exists(bld_bat_path):
-        hints.append(msg.r.RattlerBldBat().as_string())
+        hints.append(msg.r.RattlerBldBat())
 
 
 # Matches a manual definition of SP_DIR in a script line, e.g.
@@ -686,7 +686,7 @@ def hint_rattler_build_sp_dir(
 
     text = recipe_text or ""
     if SP_DIR_DEFINITION_RE.search(text) or PREFIX_SITE_PACKAGES_RE.search(text):
-        hints.append(msg.r.RattlerSPDir().as_string())
+        hints.append(msg.r.RattlerSPDir())
 
 
 def _check_pin_overridden(
@@ -772,7 +772,7 @@ def hint_dependency_pins(
         hints.append(
             msg.cf.PinnedDependencyOverridden(
                 output=output, bad_specs=requirements
-            ).as_string()
+            )
         )
 
 
@@ -797,5 +797,5 @@ def hint_deprecated_environment_variables(
                 msg.cf.DeprecatedEnvironmentVariable(
                     variable=f"azure.settings_{platform}.variables.{deprecated_variable}",
                     replacement=deprecated_variables[deprecated_variable],
-                ).as_string()
+                )
             )

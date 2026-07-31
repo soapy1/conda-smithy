@@ -112,6 +112,11 @@ class LinterMessage:
         """
         return {}
 
+    def detailed_message(self) -> str:
+        message = self._render()
+        return (f"\033[31m{self.identifier}\033[0m: \033[1m{message}\033[0m\n"
+                f"  help: {self.documentation()}")
+
     def _render(self) -> str:
         """
         Formats the `.message` text by using the dataclass attributes.

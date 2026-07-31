@@ -27,6 +27,7 @@ from ruamel.yaml.constructor import DuplicateKeyError
 from conda_smithy.configure_feedstock import _read_forge_config
 from conda_smithy.linter import conda_recipe_v1_linter
 from conda_smithy.linter import messages as msg
+from conda_smithy.linter.messages. base import LinterMessage
 from conda_smithy.linter.hints import (
     hint_abi3_cross_python_run_exports,
     hint_check_spdx,
@@ -160,7 +161,7 @@ def lintify_meta_yaml(
     recipe_dir: Optional[str] = None,
     conda_forge: bool = False,
     recipe_version: int = 0,
-) -> tuple[list[str], list[str]]:
+) -> tuple[list[LinterMessage | str], list[LinterMessage | str]]:
     lints = []
     hints = []
     major_sections = list(meta.keys())
@@ -176,7 +177,7 @@ def lintify_meta_yaml(
 
     # irrespective of the expected recipe_version, lint if both recipe types are present
     if os.path.exists(recipe_fname_v0) and os.path.exists(recipe_fname_v1):
-        lints.append(msg.r.DuplicateRecipes().as_string())
+        lints.append(msg.r.DuplicateRecipes())
         return lints, hints
 
     if recipe_version == 1:
@@ -214,7 +215,7 @@ def lintify_meta_yaml(
 
     for section in major_sections:
         if section not in expected_keys:
-            lints.append(msg.r.UnexpectedSection(section=section).as_string())
+            lints.append(msg.r.UnexpectedSection(section=section))
             unexpected_sections.append(section)
 
     for section in unexpected_sections:
@@ -401,7 +402,7 @@ def lintify_meta_yaml(
 
     # 30: two configuration files present
     if sum(v is not None for v in recipe_config_keys.values()) > 1:
-        lints.append(msg.rv.MoreThanOneConfigFile().as_string())
+        lints.append(msg.rv.MoreThanOneConfigFile())
 
     # 31: stdlib-related lints
     if "lint_stdlib" not in lints_to_skip:
@@ -675,7 +676,7 @@ def run_conda_forge_specific(
             lints.append(
                 msg.cf.MaintainerMissing(
                     maintainer=maintainer, path=recipe_fname
-                ).as_string()
+                )
             )
         elif exists is None:
             # the existence check could not be completed (e.g. GitHub rate
@@ -684,7 +685,7 @@ def run_conda_forge_specific(
             lints.append(
                 msg.cf.InconclusiveMaintainerCheck(
                     maintainer=maintainer, path=recipe_fname
-                ).as_string()
+                )
             )
 
     # 3: if the recipe dir is inside the example dir
@@ -734,7 +735,7 @@ def run_conda_forge_specific(
     if not is_staged_recipes and recipe_dir is not None:
         ci_support_files = glob(os.path.join(recipe_dir, "..", ".ci_support", "*.yaml"))
         if not ci_support_files:
-            lints.append(msg.cf.NoVariantConfigs().as_string())
+            lints.append(msg.cf.NoVariantConfigs())
     else:
         ci_support_files = []
 
@@ -775,7 +776,7 @@ def run_conda_forge_specific(
             with open(cfyml_pth, encoding="utf-8") as fh:
                 get_yaml(allow_duplicate_keys=False).load(fh)
         except DuplicateKeyError:
-            lints.append(msg.fc.NoDuplicateKeys().as_string())
+            lints.append(msg.fc.NoDuplicateKeys())
 
     # 10: check for proper noarch python syntax
     if "hint_python_min" not in lints_to_skip:
@@ -869,7 +870,7 @@ def run_conda_forge_specific(
         with open(cbc_pth, encoding="utf-8") as fh:
             data = fh.read()
         if not data or not data.strip():
-            lints.append(msg.cf.NoEmptyVariantsFile(path=cbc_pth).as_string())
+            lints.append(msg.cf.NoEmptyVariantsFile(path=cbc_pth))
 
     # 14: incorrect configuration on osx for c_stdlib_version, MACOSX_SDK_VERSION etc.
     # get recipe config files (we don't care about the content, only if it's non-None)
@@ -888,7 +889,7 @@ def run_conda_forge_specific(
         len(gha_workflows) > 1 or gha_workflows[0].name != "conda-build.yml"
     ):
         lints.append(
-            msg.cf.NoCustomGHAWorkflows(path=f"{gha_workflows}/*.yaml").as_string()
+            msg.cf.NoCustomGHAWorkflows(path=f"{gha_workflows}/*.yaml")
         )
 
     # 16: Check for requirements overriding dependency pins
