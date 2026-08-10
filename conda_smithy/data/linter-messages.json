@@ -947,6 +947,18 @@
       "path": "recipe/meta.yaml"
     },
     {
+      "name": "InvalidLicenseFamily",
+      "identifier": "R0-007",
+      "category": "R0",
+      "kind": "lint",
+      "added_in": "<3.56",
+      "deprecated_in": "",
+      "documentation": "conda-build checks for valid license families in v0 recipes.",
+      "message": "about/license_family '${license_family}' not allowed. Allowed families are ${allowed_license_families}.",
+      "examples": [],
+      "path": "recipe/meta.yaml"
+    },
+    {
       "name": "NoCommentSelectors",
       "identifier": "R1-001",
       "category": "R1",

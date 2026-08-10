@@ -1302,6 +1302,28 @@ class LegacyToolchain(LinterMessage, _MetaYamlMessage):
     )
 
 
+@dataclass(kw_only=True)
+class InvalidLicenseFamily(LinterMessage, _MetaYamlMessage):
+    """
+    conda-build checks for valid license families in v0 recipes.
+    """
+
+    kind = "lint"
+    identifier = "R0-007"
+    message = (
+        "about/license_family '${license_family}' not allowed. "
+        "Allowed families are ${allowed_license_families}."
+    )
+    allowed_license_families: list[str]
+    license_family: str
+
+    def _render_attributes(self):
+        return {
+            "allowed_license_families": ", ".join(self.allowed_license_families),
+            "license_family": self.license_family,
+        }
+
+
 # endregion
 # region Recipe v1
 
