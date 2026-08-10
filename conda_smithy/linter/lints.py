@@ -619,12 +619,14 @@ def _lint_recipe_v1_noarch_and_runtime_dependencies(
     # Only run this test if noarch_value is a literal
     # Skip if it's a jinja conditional as it's expected to be not noarch depending on the context
     if noarch_value in msg.r.NoarchValue.valid:
-        lints.extend(conda_recipe_v1_linter._lint_usage_of_selectors_for_noarch(
-            noarch_value,
-            raw_requirements_section,
-            build_section,
-            noarch_platforms,
-        ))
+        lints.extend(
+            conda_recipe_v1_linter._lint_usage_of_selectors_for_noarch(
+                noarch_value,
+                raw_requirements_section,
+                build_section,
+                noarch_platforms,
+            )
+        )
     return lints
 
 
@@ -1365,14 +1367,14 @@ def lint_osx_pins(recipe_dir, recipe_config_filename, lints, recipe_version):
     lints.extend([lint.as_string() for lint in osx_lints])
 
 
-def lint_stdlib(
+def _lint_stdlib(
     meta,
     requirements_section,
     recipe_dir,
     recipe_config_filename,
-    lints,
     recipe_version: int = 0,
 ):
+    lints = []
     global_build_reqs = requirements_section.get("build") or []
     global_run_reqs = requirements_section.get("run") or []
     if recipe_version == 1:
@@ -1445,6 +1447,26 @@ def lint_stdlib(
     to_check = all_run_reqs_flat + all_contraints_flat
     if any(req.startswith("__osx >") for req in to_check):
         msg.r.StdlibMacOS(recipe_version=recipe_version).append_if_absent(lints)
+    return lints
+
+
+@deprecated(
+    "2026.8",
+    "2026.10",
+    addendum="Use _lint_stdlib instead",
+)
+def lint_stdlib(
+    meta,
+    requirements_section,
+    recipe_dir,
+    recipe_config_filename,
+    lints,
+    recipe_version: int = 0,
+):
+    stdlib_lints = _lint_stdlib(
+        meta, requirements_section, recipe_dir, recipe_config_filename, recipe_version
+    )
+    lints.extend([lint.as_string() for lint in stdlib_lints])
 
 
 def _lint_recipe_is_parsable(

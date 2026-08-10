@@ -30,7 +30,6 @@ from conda_smithy.linter import conda_recipe_v1_linter
 from conda_smithy.linter import hints as linter_hints
 from conda_smithy.linter import lints as linter_lints
 from conda_smithy.linter import messages as msg
-from conda_smithy.linter.lints import lint_stdlib
 from conda_smithy.linter.messages.base import LinterMessage
 from conda_smithy.linter.utils import (
     CONDA_BUILD_TOOL,
@@ -118,17 +117,9 @@ def lintify_meta_yaml(
         conda_forge=conda_forge,
         recipe_version=recipe_version,
     )
-    # a few nested calls (get_section, append_if_absent) still append raw
-    # strings instead of LinterMessage, so this list is a mix of the two
     return (
-        [
-            lint.as_string() if isinstance(lint, LinterMessage) else lint
-            for lint in lints
-        ],
-        [
-            hint.as_string() if isinstance(hint, LinterMessage) else hint
-            for hint in hints
-        ],
+        [lint.as_string() for lint in lints],
+        [hint.as_string() for hint in hints],
     )
 
 
@@ -412,16 +403,14 @@ def lint_meta_yaml(
     # 31: stdlib-related lints
     if "lint_stdlib" not in lints_to_skip:
         for config_fn in recipe_config_keys.keys():
-            # lint_stdlib still appends raw strings via append_if_absent
-            lint_stdlib(
+            lints.extend(linter_lints._lint_stdlib(
                 meta,
                 requirements_section,
                 recipe_dir,
                 config_fn,
-                lints,
                 # the version of the config file does not change the version of the recipe
                 recipe_version=recipe_version,
-            )
+            ))
 
     # 32: floats should be quoted
     lints.extend(linter_lints._lint_floats_quoted(meta, recipe_version=recipe_version))
@@ -652,16 +641,8 @@ def run_conda_forge_specific(
     cf_lints, cf_hints = run_conda_forge_specific_lints(
         meta, recipe_dir, recipe_version, feedstock_config
     )
-    # a few nested calls (get_section, append_if_absent) still append raw
-    # strings instead of LinterMessage, so these lists are a mix of the two
-    lints.extend(
-        lint.as_string() if isinstance(lint, LinterMessage) else lint
-        for lint in cf_lints
-    )
-    hints.extend(
-        hint.as_string() if isinstance(hint, LinterMessage) else hint
-        for hint in cf_hints
-    )
+    lints.extend(lint.as_string() for lint in cf_lints)
+    hints.extend(hint.as_string() for hint in cf_hints)
 
 
 def run_conda_forge_specific_lints(
