@@ -409,14 +409,16 @@ def lint_meta_yaml(
     # 31: stdlib-related lints
     if "lint_stdlib" not in lints_to_skip:
         for config_fn in recipe_config_keys.keys():
-            lints.extend(linter_lints._lint_stdlib(
+            stdlib_lints = linter_lints._lint_stdlib(
                 meta,
                 requirements_section,
                 recipe_dir,
                 config_fn,
                 # the version of the config file does not change the version of the recipe
                 recipe_version=recipe_version,
-            ))
+            )
+            for lint in stdlib_lints:
+                lint.append_if_absent(lints)
 
     # 32: floats should be quoted
     lints.extend(linter_lints._lint_floats_quoted(meta, recipe_version=recipe_version))
