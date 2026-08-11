@@ -1324,6 +1324,46 @@ class InvalidLicenseFamily(LinterMessage, _MetaYamlMessage):
         }
 
 
+@dataclass(kw_only=True)
+class TypeMustBeADictionary(LinterMessage, _MetaYamlMessage):
+    """
+    The given section must be a dictionary.
+    """
+
+    kind = "lint"
+    identifier = "R0-008"
+    message = (
+        'The "${name}" section was expected to be a dictionary, but '
+        "got a ${section_type}."
+    )
+    name: str
+    section_type: str
+
+
+@dataclass(kw_only=True)
+class TypeMustBeAListOrDictionary(LinterMessage, _MetaYamlMessage):
+    """
+    The given section must be a list or dictionary.
+    """
+
+    kind = "lint"
+    identifier = "R0-009"
+    message = (
+        'The "${name}" section was expected to be a ${allowed_types}, but '
+        "got a ${section_type}."
+    )
+    name: str
+    section_type: str
+    allow_single: bool
+
+    def _render_attributes(self):
+        return {
+            "name": self.name,
+            "allowed_types": "dictionary or a list" if self.allow_single else "list",
+            "section_type": self.section_type,
+        }
+
+
 # endregion
 # region Recipe v1
 

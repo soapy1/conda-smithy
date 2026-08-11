@@ -959,6 +959,30 @@
       "path": "recipe/meta.yaml"
     },
     {
+      "name": "TypeMustBeADictionary",
+      "identifier": "R0-008",
+      "category": "R0",
+      "kind": "lint",
+      "added_in": "<3.56",
+      "deprecated_in": "",
+      "documentation": "The given section must be a dictionary.",
+      "message": "The \"${name}\" section was expected to be a dictionary, but got a ${section_type}.",
+      "examples": [],
+      "path": "recipe/meta.yaml"
+    },
+    {
+      "name": "TypeMustBeAListOrDictionary",
+      "identifier": "R0-009",
+      "category": "R0",
+      "kind": "lint",
+      "added_in": "<3.56",
+      "deprecated_in": "",
+      "documentation": "The given section must be a list or dictionary.",
+      "message": "The \"${name}\" section was expected to be a ${allowed_types}, but got a ${section_type}.",
+      "examples": [],
+      "path": "recipe/meta.yaml"
+    },
+    {
       "name": "NoCommentSelectors",
       "identifier": "R1-001",
       "category": "R1",
