@@ -959,14 +959,14 @@
       "path": "recipe/meta.yaml"
     },
     {
-      "name": "TypeMustBeADictionaryOrList",
+      "name": "SectionHasInvalidType",
       "identifier": "R0-008",
       "category": "R0",
       "kind": "lint",
       "added_in": "2026.9",
       "deprecated_in": "",
       "documentation": "The given section must be a dictionary, a list, or either.",
-      "message": "The \"${name}\" section was expected to be a ${allowed_types}, but got a ${section_type}.",
+      "message": "The \"${name}\" section was expected to be a ${allowed_types_formatted}, but got a ${section_type}.",
       "examples": [
         "The \"build\" section was expected to be a dictionary, but got a str.",
         "The \"source\" section was expected to be a dictionary or a list, but got a str.",

@@ -1326,7 +1326,7 @@ class InvalidLicenseFamily(LinterMessage, _MetaYamlMessage):
 
 
 @dataclass(kw_only=True)
-class TypeMustBeADictionaryOrList(LinterMessage, _MetaYamlMessage):
+class SectionHasInvalidType(LinterMessage, _MetaYamlMessage):
     """
     The given section must be a dictionary, a list, or either.
     """
@@ -1334,36 +1334,35 @@ class TypeMustBeADictionaryOrList(LinterMessage, _MetaYamlMessage):
     kind = "lint"
     identifier = "R0-008"
     message = (
-        'The "${name}" section was expected to be a ${allowed_types}, but '
+        'The "${name}" section was expected to be a ${allowed_types_formatted}, but '
         "got a ${section_type}."
     )
     name: str
     section_type: str
-    allow_dict: bool
-    allow_list: bool
+    allowed_types: list[str]
     added_in = "2026.9"
 
     def _render_attributes(self):
-        allowed_types = " or a ".join(
-            allowed
-            for allowed, allow in (
-                ("dictionary", self.allow_dict),
-                ("list", self.allow_list),
+        if len(self.allowed_types) == 1:
+            allowed_types_formatted = self.allowed_types[0]
+        else:
+            allowed_types_formatted = (
+                ", ".join(self.allowed_types[:-1]) + " or a " + self.allowed_types[-1]
             )
-            if allow
-        )
         return {
             "name": self.name,
-            "allowed_types": allowed_types,
+            "allowed_types_formatted": allowed_types_formatted,
             "section_type": self.section_type,
         }
 
     @classmethod
     def examples(cls) -> list[Self]:
         return [
-            cls(name="build", section_type="str", allow_dict=True, allow_list=False),
-            cls(name="source", section_type="str", allow_dict=True, allow_list=True),
-            cls(name="outputs", section_type="dict", allow_dict=False, allow_list=True),
+            cls(name="build", section_type="str", allowed_types=["dictionary"]),
+            cls(
+                name="source", section_type="str", allowed_types=["dictionary", "list"]
+            ),
+            cls(name="outputs", section_type="dict", allowed_types=["list"]),
         ]
 
 
