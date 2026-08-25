@@ -1316,6 +1316,7 @@ class InvalidLicenseFamily(LinterMessage, _MetaYamlMessage):
     )
     allowed_license_families: list[str]
     license_family: str
+    added_in = "2026.9"
 
     def _render_attributes(self):
         return {
@@ -1340,6 +1341,7 @@ class TypeMustBeADictionaryOrList(LinterMessage, _MetaYamlMessage):
     section_type: str
     allow_dict: bool
     allow_list: bool
+    added_in = "2026.9"
 
     def _render_attributes(self):
         allowed_types = " or a ".join(
@@ -1545,6 +1547,7 @@ class UnsupportedSchemaVersion(LinterMessage, _AnyRecipeMessage):
     identifier = "R1-008"
     message = "Unsupported recipe.yaml schema version ${schema_version}"
     schema_version: int
+    added_in = "2026.9"
 
 
 # endregion
