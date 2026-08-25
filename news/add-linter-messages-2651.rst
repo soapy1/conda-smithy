@@ -1,6 +1,6 @@
 **Added:**
 
-* Add `UnsupportedSchemaVersion`, `InvalidLicenseFamily`, `TypeMustBeADictionary`, `TypeMustBeAListOrDictionary` as `LinterMessage`, which were previously strings. (#2651)
+* Add `UnsupportedSchemaVersion`, `InvalidLicenseFamily`, `TypeMustBeADictionaryOrList` as `LinterMessage`, which were previously strings. (#2651)
 
 **Changed:**
 

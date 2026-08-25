@@ -95,8 +95,11 @@ def get_meta_section(parent, name, lints):
     section = parent.get(name, {})
     if not isinstance(section, Mapping):
         lints.append(
-            msg.r.TypeMustBeADictionary(
-                name=name, section_type=type(section).__name__
+            msg.r.TypeMustBeADictionaryOrList(
+                name=name,
+                section_type=type(section).__name__,
+                allow_dict=True,
+                allow_list=False,
             ).as_string()
         )
         section = {}
@@ -124,8 +127,11 @@ def get_list_section(parent, name, lints, allow_single=False):
     else:
         section_type = f"{type(section).__module__}.{type(section).__name__}"
         lints.append(
-            msg.r.TypeMustBeAListOrDictionary(
-                name=name, allow_single=allow_single, section_type=section_type
+            msg.r.TypeMustBeADictionaryOrList(
+                name=name,
+                section_type=section_type,
+                allow_dict=allow_single,
+                allow_list=True,
             ).as_string()
         )
         return [{}]

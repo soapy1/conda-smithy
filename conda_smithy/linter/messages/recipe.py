@@ -1325,43 +1325,44 @@ class InvalidLicenseFamily(LinterMessage, _MetaYamlMessage):
 
 
 @dataclass(kw_only=True)
-class TypeMustBeADictionary(LinterMessage, _MetaYamlMessage):
+class TypeMustBeADictionaryOrList(LinterMessage, _MetaYamlMessage):
     """
-    The given section must be a dictionary.
+    The given section must be a dictionary, a list, or either.
     """
 
     kind = "lint"
     identifier = "R0-008"
-    message = (
-        'The "${name}" section was expected to be a dictionary, but '
-        "got a ${section_type}."
-    )
-    name: str
-    section_type: str
-
-
-@dataclass(kw_only=True)
-class TypeMustBeAListOrDictionary(LinterMessage, _MetaYamlMessage):
-    """
-    The given section must be a list or dictionary.
-    """
-
-    kind = "lint"
-    identifier = "R0-009"
     message = (
         'The "${name}" section was expected to be a ${allowed_types}, but '
         "got a ${section_type}."
     )
     name: str
     section_type: str
-    allow_single: bool
+    allow_dict: bool
+    allow_list: bool
 
     def _render_attributes(self):
+        allowed_types = " or a ".join(
+            allowed
+            for allowed, allow in (
+                ("dictionary", self.allow_dict),
+                ("list", self.allow_list),
+            )
+            if allow
+        )
         return {
             "name": self.name,
-            "allowed_types": "dictionary or a list" if self.allow_single else "list",
+            "allowed_types": allowed_types,
             "section_type": self.section_type,
         }
+
+    @classmethod
+    def examples(cls) -> list[Self]:
+        return [
+            cls(name="build", section_type="str", allow_dict=True, allow_list=False),
+            cls(name="source", section_type="str", allow_dict=True, allow_list=True),
+            cls(name="outputs", section_type="dict", allow_dict=False, allow_list=True),
+        ]
 
 
 # endregion
