@@ -1316,6 +1316,8 @@ class InvalidLicenseFamily(LinterMessage, _MetaYamlMessage):
     )
     allowed_license_families: list[str]
     license_family: str
+    # This lint existed before 2026.9, but is introduced into the
+    # LinterMessage framework in 2026.9.
     added_in = "2026.9"
 
     def _render_attributes(self):
@@ -1340,6 +1342,8 @@ class SectionHasInvalidType(LinterMessage, _MetaYamlMessage):
     name: str
     section_type: str
     allowed_types: list[str]
+    # This lint existed before 2026.9, but is introduced into the
+    # LinterMessage framework in 2026.9.
     added_in = "2026.9"
 
     def _render_attributes(self):
@@ -1546,6 +1550,8 @@ class UnsupportedSchemaVersion(LinterMessage, _AnyRecipeMessage):
     identifier = "R1-008"
     message = "Unsupported recipe.yaml schema version ${schema_version}"
     schema_version: int
+    # This lint existed before 2026.9, but is introduced into the
+    # LinterMessage framework in 2026.9.
     added_in = "2026.9"
 
 
